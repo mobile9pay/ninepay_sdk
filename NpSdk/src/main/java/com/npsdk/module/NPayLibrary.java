@@ -37,6 +37,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @SuppressLint("StaticFieldLeak")
@@ -159,8 +160,8 @@ public class NPayLibrary {
                 DataOrder.Companion.setUserInfo(userInfo);
                 Map<String, Object> userInfoMap = new HashMap<>();
                 userInfoMap.put("phone", userInfo.getPhone());
-                userInfoMap.put("balance", userInfo.getBalance().toString());
-                userInfoMap.put("statusKyc", userInfo.getStatus().toString());
+                userInfoMap.put("balance", userInfo.getBalance());
+                userInfoMap.put("statusKyc", userInfo.getStatus());
                 userInfoMap.put("name", userInfo.getName());
                 String json = gson.toJson(userInfoMap);
                 listener.getInfoSuccess(json);
@@ -203,8 +204,8 @@ public class NPayLibrary {
                 DataOrder.Companion.setUserInfo(userInfo);
                 Map<String, Object> userInfoMap = new HashMap<>();
                 userInfoMap.put("phone", userInfo.getPhone());
-                userInfoMap.put("balance", userInfo.getBalance().toString());
-                userInfoMap.put("statusKyc", userInfo.getStatus().toString());
+                userInfoMap.put("balance", userInfo.getBalance());
+                userInfoMap.put("statusKyc", userInfo.getStatus());
                 userInfoMap.put("name", userInfo.getName());
                 userInfoMap.put("banks", userInfo.getBanks());
                 String json = gson.toJson(userInfoMap);
@@ -329,11 +330,12 @@ public class NPayLibrary {
     }
 
     public void createOrder(
-            String amount,
-            String productName,
-            String bType,
-            String bInfo,
-            FailureCallback onFail
+        @Nullable String requestId,
+        String amount,
+        String productName,
+        String bType,
+        String bInfo,
+        FailureCallback onFail
     ) {
         CallbackCreateOrderPaymentMethod callback = new CallbackCreateOrderPaymentMethod() {
             @Override
@@ -342,9 +344,9 @@ public class NPayLibrary {
 
                 String endpoint = "payment";
                 Map<String, String> params = Map.of(
-                        "order_id", result.getOrderCode(),
-                        "b_type", bType,
-                        "b_info", bInfo
+                    "order_id", result.getOrderCode(),
+                    "b_type", bType,
+                    "b_info", bInfo
                 );
 
                 String encodedUrl = encodeEndpoint(endpoint, params);
@@ -360,13 +362,16 @@ public class NPayLibrary {
         };
         CreatePaymentOrderRepo createPaymentOrderRepo = new CreatePaymentOrderRepo();
 
-        String requestId = UUID.randomUUID().toString();
+        // Tạo requestId nếu null
+        if (requestId == null) {
+            requestId = UUID.randomUUID().toString();
+        }
 
         CreateOrderParamWalletMethod param = new CreateOrderParamWalletMethod(
-                amount,
-                productName,
-                requestId,
-                sdkConfig.getMerchantCode()
+            amount,
+            productName,
+            requestId,
+            sdkConfig.getMerchantCode()
         );
         createPaymentOrderRepo.check(activity, param, callback);
     }
