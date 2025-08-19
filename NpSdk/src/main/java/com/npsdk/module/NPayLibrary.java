@@ -37,8 +37,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
+
 
 @SuppressLint("StaticFieldLeak")
 public class NPayLibrary {
@@ -297,8 +297,8 @@ public class NPayLibrary {
         return obj.toString();
     }
 
-    public void callBackToMerchant(String name, Object status, @Nullable Object param) {
-        listener.sdkDidComplete(name, status, param);
+    public void callBackToMerchant(String name, Boolean status, @Nullable Object params) {
+        listener.sdkDidComplete(name, status, params);
     }
 
     public void callbackBackToAppfrom(String screen) {
@@ -335,6 +335,7 @@ public class NPayLibrary {
         String productName,
         String bType,
         String bInfo,
+        @Nullable Map<String, Object> metaData,
         FailureCallback onFail
     ) {
         CallbackCreateOrderPaymentMethod callback = new CallbackCreateOrderPaymentMethod() {
@@ -371,7 +372,8 @@ public class NPayLibrary {
             amount,
             productName,
             requestId,
-            sdkConfig.getMerchantCode()
+            sdkConfig.getMerchantCode(),
+            metaData
         );
         createPaymentOrderRepo.check(activity, param, callback);
     }

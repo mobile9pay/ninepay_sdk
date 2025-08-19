@@ -40,7 +40,6 @@ public interface ApiService {
     @POST("/sdk/v1/wallet/payment")
     Call<String> createPayment(@Field("type") String type, @Field("order_id") String orderId);
 
-
     @FormUrlEncoded
     @POST("/sdk/v1/payment/verifyOtp")
     Call<String> verifyPayment(@Field("payment_id") String paymentId, @Field("otp") String otp);
