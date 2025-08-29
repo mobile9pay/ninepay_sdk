@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.PorterDuff;
 import android.hardware.Camera;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -31,6 +30,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.gson.Gson;
@@ -86,6 +89,22 @@ public class NPayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_npay);
+
+        if (Build.VERSION.SDK_INT >= 35) {
+            // Cho phép layout full màn hình, tự xử lý insets
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+            View rootView = findViewById(R.id.rootView);
+            ViewCompat.setOnApplyWindowInsetsListener(rootView, (v, insets) -> {
+                Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
+                Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+
+                int bottom = Math.max(ime.bottom, sys.bottom);
+
+                v.setPadding(sys.left, sys.top, sys.right, bottom);
+
+                return insets;
+            });
+        }
 
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
 
@@ -463,7 +482,7 @@ public class NPayActivity extends AppCompatActivity {
                     return false;
                 }
 
-                if (url.startsWith(Flavor.baseUrl)) {
+                if (url.startsWith(Flavor.baseUrl) || url.startsWith(Constants.STAGING_URL)) {
                     clearWebview2WithToolbar();
                     return false;
                 }
